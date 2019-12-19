@@ -10,9 +10,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import ninja.bryansills.progressbartest.BR
 
-class RealMainViewModel(val coroutineDispatchers: CoroutineDispatchers, val observableDelegate: ObservableDelegate) : MainViewModel(), Observable by observableDelegate {
+class RealMainViewModel(val coroutineDispatchers: CoroutineDispatchers, val observableDelegate: ObservableDelegate) : MainViewModel(observableDelegate) {
     override val liveData = MutableLiveData<UiState>()
     var stringLiveData = MutableLiveData<String>()
     val fibonacci = MutableLiveData<Int>()
@@ -31,11 +30,11 @@ class RealMainViewModel(val coroutineDispatchers: CoroutineDispatchers, val obse
         }
     }
 
-    override var input: String = ""
+    override var input: String = "Initial value"
         @Bindable get() = field
         set(value) {
             field = value
-            observableDelegate.notifyPropertyChanged(BR._all)
+//            observableDelegate.notifyPropertyChanged(BR.input)
         }
 
     private fun throwNpe(): String {
@@ -99,11 +98,16 @@ class RealMainViewModel(val coroutineDispatchers: CoroutineDispatchers, val obse
         }
 }
 
-abstract class MainViewModel : ViewModel() {
+abstract class MainViewModel(private val observableDelegate: ObservableDelegate) : ViewModel(), Observable by observableDelegate {
     abstract var input: String
     abstract val liveData: LiveData<UiState>
     abstract fun setLoading()
     abstract fun setLoaded()
+
+    override fun onCleared() {
+        super.onCleared()
+        observableDelegate.clear()
+    }
 }
 
 sealed class UiState {

@@ -24,4 +24,8 @@ class ObservableDelegate : Observable {
     fun notifyPropertyChanged(fieldId: Int) {
         callbacks.notifyCallbacks(this, fieldId, null)
     }
+
+    fun clear() {
+        callbacks.clear()
+    }
 }
