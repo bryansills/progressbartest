@@ -21,8 +21,9 @@ class ObservableDelegate : Observable {
      *
      * @param fieldId The generated BR id for the Bindable field.
      */
-    fun notifyPropertyChanged(fieldId: Int) {
-        callbacks.notifyCallbacks(this, fieldId, null)
+    fun notifyPropertyChanged(observable: Observable, fieldId: Int) {
+        callbacks.notifyChange(observable, fieldId)
+        callbacks.notifyCallbacks(observable, fieldId, null)
     }
 
     fun clear() {

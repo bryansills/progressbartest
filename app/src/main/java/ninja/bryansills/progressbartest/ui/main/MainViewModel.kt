@@ -10,6 +10,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
+import ninja.bryansills.progressbartest.BR
 
 class RealMainViewModel(val coroutineDispatchers: CoroutineDispatchers, val observableDelegate: ObservableDelegate) : MainViewModel(observableDelegate) {
     override val liveData = MutableLiveData<UiState>()
@@ -34,7 +35,7 @@ class RealMainViewModel(val coroutineDispatchers: CoroutineDispatchers, val obse
         @Bindable get() = field
         set(value) {
             field = value
-//            observableDelegate.notifyPropertyChanged(BR.input)
+            observableDelegate.notifyPropertyChanged(this, BR._all)
         }
 
     private fun throwNpe(): String {

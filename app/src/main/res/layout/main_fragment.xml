@@ -6,8 +6,8 @@
 
     <data>
         <variable
-            name="input"
-            type="java.lang.String" />
+            name="viewModel"
+            type="ninja.bryansills.progressbartest.ui.main.MainViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="@={input}"
+            android:text="@={viewModel.input}"
             app:layout_constraintBottom_toTopOf="@+id/loadingButton"
             app:layout_constraintEnd_toStartOf="@+id/textView"
             app:layout_constraintHorizontal_bias="0.0"
@@ -72,10 +72,19 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{input}"
+            android:text="@{viewModel.input}"
             app:layout_constraintBottom_toTopOf="@+id/loadedButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/editTextTextPersonName" />
+
+        <include
+            layout="@layout/inner_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loadingButton"
+            app:searchName="@={viewModel.input}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
