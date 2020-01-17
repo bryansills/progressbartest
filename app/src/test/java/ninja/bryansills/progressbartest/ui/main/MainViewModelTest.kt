@@ -63,7 +63,7 @@ class MainViewModelTest {
 
     @Test
     fun setLoading() {
-        val viewModel = MainViewModel(fakeSimpleDispatcher)
+        val viewModel = RealMainViewModel(fakeSimpleDispatcher, ObservableDelegate())
         viewModel.setLoading()
         viewModel.liveData.observeOnce { actual ->
             assertEquals(UiState.Loading, actual)
@@ -72,7 +72,7 @@ class MainViewModelTest {
 
     @Test
     fun fibonacci() = dispatcher.runBlockingTest {
-        val viewModel = MainViewModel(fakeSimpleDispatcher)
+        val viewModel = RealMainViewModel(fakeSimpleDispatcher, ObservableDelegate())
         viewModel.fibonacci.observeOnce { actual ->
             assertNotNull(actual)
         }
@@ -97,7 +97,7 @@ class MainViewModelTest {
 //            }
 //        }
 
-        val viewModel = MainViewModel(fakeSimpleDispatcher)
+        val viewModel = RealMainViewModel(fakeSimpleDispatcher, ObservableDelegate())
         viewModel.fibonacci.observe(10) { actual ->
             assertEquals(10, actual.size)
             assertEquals(1, actual[0])

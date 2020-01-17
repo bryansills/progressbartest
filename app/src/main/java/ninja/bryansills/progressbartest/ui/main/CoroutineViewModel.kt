@@ -4,8 +4,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 
-class CoroutineViewModel(private val coroutineDispatchers: CoroutineDispatchers) : ViewModel() {
+class CoroutineViewModel(
+    private val coroutineDispatchers: CoroutineDispatchers,
+    private val somethingRepo: SomethingRepo
+) : ViewModel() {
     val fibonacci = MutableLiveData<Int>()
 
     fun runFibonacci(numberOfIterations: Int) {
@@ -27,6 +31,9 @@ class CoroutineViewModel(private val coroutineDispatchers: CoroutineDispatchers)
             }
         }
     }
+
+    fun getCurrentId(): Flow<Int> = somethingRepo.currentId
+    fun setCurrentId(newId: Int) = somethingRepo.setCurrentId(newId)
 
     val memoizedMap: MutableMap<Int, Int> = mutableMapOf();
 
@@ -51,4 +58,9 @@ class RealCoroutineDispatchers : CoroutineDispatchers {
 
     override val computation: CoroutineDispatcher
         get() = Dispatchers.Default
+}
+
+interface SomethingRepo {
+    val currentId: Flow<Int>
+    fun setCurrentId(newId: Int)
 }
