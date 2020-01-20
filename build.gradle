@@ -37,7 +37,6 @@ allprojects {
         task.kotlinOptions {
             jvmTarget = "1.8"
             freeCompilerArgs += [
-                    '-XXLanguage:+NewInference',
                     '-progressive',
                     '-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi',
                     '-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi',

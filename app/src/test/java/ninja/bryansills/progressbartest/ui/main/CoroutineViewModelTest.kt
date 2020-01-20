@@ -3,16 +3,15 @@ package ninja.bryansills.progressbartest.ui.main
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
+import ninja.bryansills.progressbartest.TestCoroutineDispatcherRule
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -20,25 +19,14 @@ class CoroutineViewModelTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private val mainThreadSurrogate = newSingleThreadContext("Test thread")
+    @get:Rule
+    val testCoroutineDispatcherRule = TestCoroutineDispatcherRule()
 
-    private val dispatcher = TestCoroutineDispatcher()
-    private val fakeSimpleDispatcher = FakeCoroutineDispatchers(dispatcher)
-    private val fakeSomethingRepo = FakeSomethingRepo(dispatcher)
-
-    @Before
-    fun setup() {
-        Dispatchers.setMain(mainThreadSurrogate)
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-        dispatcher.cleanupTestCoroutines()
-    }
+    private val fakeSimpleDispatcher = FakeCoroutineDispatchers(testCoroutineDispatcherRule.dispatcher)
+    private val fakeSomethingRepo = FakeSomethingRepo(testCoroutineDispatcherRule.dispatcher)
 
     @Test
-    fun fibonacci() = dispatcher.runBlockingTest {
+    fun fibonacci() = testCoroutineDispatcherRule.dispatcher.runBlockingTest {
         val viewModel = CoroutineViewModel(fakeSimpleDispatcher, fakeSomethingRepo)
 
         val NUMBER_OF_STEPS = 10
@@ -56,7 +44,7 @@ class CoroutineViewModelTest {
     }
 
     @Test
-    fun setCurrentIdTest() = dispatcher.runBlockingTest {
+    fun setCurrentIdTest() = testCoroutineDispatcherRule.dispatcher.runBlockingTest {
         val viewModel = CoroutineViewModel(fakeSimpleDispatcher, fakeSomethingRepo)
         val asyncJob = async {
             viewModel.getCurrentId().take(5).toList()
