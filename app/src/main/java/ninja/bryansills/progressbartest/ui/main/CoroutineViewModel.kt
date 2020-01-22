@@ -10,6 +10,29 @@ class CoroutineViewModel(
     private val coroutineDispatchers: CoroutineDispatchers,
     private val somethingRepo: SomethingRepo
 ) : ViewModel() {
+    val maybeSomethingIsntHere = MutableLiveData<String>()
+
+    fun initializeSomething() {
+        viewModelScope.launch(coroutineDispatchers.computation) {
+            delay(100000)
+
+            var result = 0
+            (0..1000000).forEach {
+                val bounds = it % 10
+                result += (0..bounds).random()
+            }
+
+            withContext(coroutineDispatchers.ui) {
+                maybeSomethingIsntHere.value = result.toString()
+            }
+        }
+    }
+
+    fun incrementSomething() {
+        val mightBeNull = maybeSomethingIsntHere.value!!
+        maybeSomethingIsntHere.value = (mightBeNull.toInt() + 1).toString()
+    }
+
     val fibonacci = MutableLiveData<Int>()
 
     fun runFibonacci(numberOfIterations: Int) {

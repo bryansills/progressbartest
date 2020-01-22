@@ -6,7 +6,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
@@ -21,14 +20,12 @@ class MainViewModelTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private val mainThreadSurrogate = newSingleThreadContext("UI thread")
-
     private val dispatcher = TestCoroutineDispatcher()
     private val fakeSimpleDispatcher = FakeCoroutineDispatchers(dispatcher)
 
     @Before
-    open fun setup() {
-        Dispatchers.setMain(mainThreadSurrogate)
+    fun setup() {
+        Dispatchers.setMain(dispatcher)
     }
 
     @After

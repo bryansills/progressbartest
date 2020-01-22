@@ -9,24 +9,23 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import ninja.bryansills.progressbartest.TestCoroutineDispatcherRule
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 
 class CoroutineViewModelTest {
     @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
-    val testCoroutineDispatcherRule = TestCoroutineDispatcherRule()
+    val coroutineRule = TestCoroutineDispatcherRule()
 
-    private val fakeSimpleDispatcher = FakeCoroutineDispatchers(testCoroutineDispatcherRule.dispatcher)
-    private val fakeSomethingRepo = FakeSomethingRepo(testCoroutineDispatcherRule.dispatcher)
+    private val fakeSimpleDispatcher = FakeCoroutineDispatchers(coroutineRule.dispatcher)
+    private val fakeSomethingRepo = FakeSomethingRepo(coroutineRule.dispatcher)
 
     @Test
-    fun fibonacci() = testCoroutineDispatcherRule.dispatcher.runBlockingTest {
+    fun fibonacci() = coroutineRule.runBlockingTest {
         val viewModel = CoroutineViewModel(fakeSimpleDispatcher, fakeSomethingRepo)
 
         val NUMBER_OF_STEPS = 10
@@ -44,7 +43,7 @@ class CoroutineViewModelTest {
     }
 
     @Test
-    fun setCurrentIdTest() = testCoroutineDispatcherRule.dispatcher.runBlockingTest {
+    fun setCurrentIdTest() = coroutineRule.runBlockingTest {
         val viewModel = CoroutineViewModel(fakeSimpleDispatcher, fakeSomethingRepo)
         val asyncJob = async {
             viewModel.getCurrentId().take(5).toList()
@@ -56,6 +55,24 @@ class CoroutineViewModelTest {
         viewModel.setCurrentId(10)
         val actual = asyncJob.await()
         assertEquals(listOf(6, 7, 8, 9, 10), actual)
+    }
+
+    @Test
+    fun maybeNull() = coroutineRule.runBlockingTest {
+        val viewModel = CoroutineViewModel(fakeSimpleDispatcher, fakeSomethingRepo)
+        viewModel.initializeSomething()
+        val initialValue = viewModel.maybeSomethingIsntHere.collectCount(1)[0]
+        assertNotNull(initialValue)
+        viewModel.incrementSomething()
+        assertNotNull(viewModel.maybeSomethingIsntHere.value)
+    }
+
+    @Test
+    fun maybeNotNull() = coroutineRule.runBlockingTest {
+        val viewModel = CoroutineViewModel(fakeSimpleDispatcher, fakeSomethingRepo)
+        viewModel.initializeSomething()
+        val actual = viewModel.maybeSomethingIsntHere.collectCount(1)
+        assertTrue(actual.isNotEmpty())
     }
 }
 
@@ -77,13 +94,9 @@ suspend fun <T> Flow<T>.collectExactly(coroutineScope: CoroutineScope, count: In
     return asyncJob.await()
 }
 
-
 class FakeCoroutineDispatchers(private val dispatcher: CoroutineDispatcher) : CoroutineDispatchers {
-    override val ui: CoroutineDispatcher
-        get() = dispatcher
-
-    override val computation: CoroutineDispatcher
-        get() = dispatcher
+    override val ui = dispatcher
+    override val computation = dispatcher
 }
 
 class FakeSomethingRepo(private val dispatcher: CoroutineDispatcher) : SomethingRepo {

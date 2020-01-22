@@ -1,18 +1,15 @@
 package ninja.bryansills.progressbartest
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.*
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import kotlin.coroutines.ContinuationInterceptor
 
-class TestCoroutineDispatcherRule : TestRule, TestCoroutineScope by TestCoroutineScope() {
+class TestCoroutineDispatcherRule : TestRule {
 
-    val dispatcher = coroutineContext[ContinuationInterceptor] as TestCoroutineDispatcher
+    val dispatcher = TestCoroutineDispatcher()
+    val scope = TestCoroutineScope(dispatcher)
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
@@ -25,9 +22,12 @@ class TestCoroutineDispatcherRule : TestRule, TestCoroutineScope by TestCoroutin
                 base.evaluate()
                 // everything below this happens after the test
 
-                cleanupTestCoroutines()
+                scope.cleanupTestCoroutines()
+                dispatcher.cleanupTestCoroutines()
                 Dispatchers.resetMain()
             }
         }
     }
+
+    fun runBlockingTest(block: suspend TestCoroutineScope.() -> Unit) = scope.runBlockingTest { block() }
 }
