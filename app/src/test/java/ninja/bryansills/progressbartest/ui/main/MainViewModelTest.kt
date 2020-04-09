@@ -83,17 +83,6 @@ class MainViewModelTest {
 
     @Test
     fun fibonacciFlow() = dispatcher.runBlockingTest {
-//        async {
-//            try {
-//                repeat(500) { i ->
-//                    println("job: I'm sleeping $i ...")
-//                    delay(5000L)
-//                }
-//            } finally {
-//                println("job: I'm running finally")
-//            }
-//        }
-
         val viewModel = RealMainViewModel(fakeSimpleDispatcher, ObservableDelegate())
         viewModel.fibonacci.observe(10) { actual ->
             assertEquals(10, actual.size)
@@ -115,8 +104,6 @@ class MainViewModelTest {
         }
 
         assertTrue(true)
-//        this.cleanupTestCoroutines()
-//        this.cancel("because")
     }
 }
 
