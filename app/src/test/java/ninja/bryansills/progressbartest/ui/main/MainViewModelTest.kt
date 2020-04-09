@@ -4,12 +4,12 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
+import ninja.bryansills.progressbartest.windowed
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -104,6 +104,16 @@ class MainViewModelTest {
         }
 
         assertTrue(true)
+    }
+
+    @Test
+    fun windowedTest() = dispatcher.runBlockingTest {
+        val result = (1..10).asFlow().onStart { emit(1) }.windowed(2, 1, true).toList()
+        assertEquals(result.size, 11)
+        assertEquals(result[0], listOf(1,1))
+        assertEquals(result[1], listOf(1,2))
+        assertEquals(result[2], listOf(2,3))
+        // ...
     }
 }
 
